@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "com.oasisreader.app"
-        minSdk = 29
+        minSdk = 28
         targetSdk = 35
         versionCode = ciVersionCode
         versionName = "$baseVersion.$ciVersionCode"

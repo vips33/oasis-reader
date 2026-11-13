@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -26,12 +26,14 @@ jobs:
         with:
           gradle-version: '8.11'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK 35
+      - name: Configure Android SDK
         run: |
-          sdkmanager "platforms;android-35" \
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" \
+            -name sdkmanager -type f | head -1)
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" \
             "build-tools;35.0.0"
 
       - name: Set Android 9 minimum SDK
@@ -39,7 +41,6 @@ jobs:
           sed -i \
             's/minSdk = 29/minSdk = 28/' \
             app/build.gradle.kts
-
           grep 'minSdk = ' app/build.gradle.kts
 
       - name: Build Debug APK
@@ -60,3 +61,4 @@ jobs:
           name: OasisReader-Android9-ARMv7
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
+          if-no-files-found: error
